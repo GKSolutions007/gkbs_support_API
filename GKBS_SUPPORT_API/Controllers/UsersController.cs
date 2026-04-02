@@ -15,9 +15,7 @@ namespace GKBS_SUPPORT_API.Controllers
 {
     public class UsersController : ApiController
     {
-        clsBusinessLayer bl = new clsBusinessLayer();
-        string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["dbconncection"].ConnectionString);
-
+        clsBusinessLayer bl = new clsBusinessLayer();        
         [HttpGet]
         [Route("api/users/GetUserList")]
 
