@@ -13,7 +13,28 @@ namespace GKBS_SUPPORT_API.Models
         public int ReportID { get; set; }
         public int TableID { get; set; }
     }
+    public class ReportParameters
+    {
+        public string ParameterID { get; set; }
+        public string ReportID { get; set; }
+        public string ParameterName { get; set; }
+        public string ParameterType { get; set; }
+        public string IsMandatory { get; set; }
+        public string ParamOrder { get; set; }
+        public string AutolistName { get; set; }
+        public string ProcedureName { get; set; }
+        public string SendFiltersDetail { get; set; }
 
+        public List<ReportFilters> lstvFilters { get; set; }
+    }
+    public class ReportFilters
+    {
+        public string Param1 { get; set; }
+        public string Param2 { get; set; }
+        public string Param4 { get; set; }
+        public string Param3 { get; set; }
+        public string Param5 { get; set; }
+    }
     public class ReportColumn
     {
         public int ReportID { get; set; }

@@ -1,6 +1,7 @@
 ﻿using GKBS_SUPPORT_API.BuisnessLayer;
 using GKBS_SUPPORT_API.DALHelper;
 using GKBS_SUPPORT_API.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -176,6 +177,34 @@ namespace GKBS_SUPPORT_API.Controllers
             {
                 return Ok(new { success = false, message = "Something went wrong. Please try again later.", error = ex.Message });
             }
+        }
+        [HttpGet]
+        [Route("api/validatepermissions")]
+        public IHttpActionResult validatepermissionsData(string UID)
+        {
+            DataSet ds = new DataSet();           
+            DataTable dtAppconfig = bl.BL_ExecuteParamSP("uspManageApplicationConfig", 1);
+            dtAppconfig.TableName = "AppConfig";
+            ds.Tables.Add(dtAppconfig);
+            DataTable dtRes = bl.BL_ExecuteParamSP("uspManageUsers", "userdata", UID);
+            dtRes.TableName = "UserData";
+            ds.Tables.Add(dtRes);
+            //string RID = dtRes.Rows[0]["RoleID"].ToString();
+            DataTable dtParent = bl.BL_ExecuteParamSP("uspMenuPermission", 1, null);
+            dtParent.TableName = "ParentMenu";
+            ds.Tables.Add(dtParent);
+            DataTable dtPermission = bl.BL_ExecuteParamSP("uspMenuPermission", 2, UID);
+            dtPermission.TableName = "UserMenus";
+            ds.Tables.Add(dtPermission);
+            DataTable dtReportParent = bl.BL_ExecuteParamSP("uspReportPermission", 1, UID);
+            dtReportParent.TableName = "ParentRepMenu";
+            ds.Tables.Add(dtReportParent);
+            DataTable dtReportPermission = bl.BL_ExecuteParamSP("uspReportPermission", 2, UID);
+            dtReportPermission.TableName = "UserRepMenus";
+            ds.Tables.Add(dtReportPermission);
+           
+            string dtjson = JsonConvert.SerializeObject(ds);
+            return Ok(dtjson);
         }
     }
 }
