@@ -82,7 +82,7 @@ namespace GKBS_SUPPORT_API.Models
         public string Active { get; set; }
         public string Address { get; set; }
         public string Latitude { get; set; }
-        public string Longitude { get; set; }
+        public string Longtitude { get; set; }
         public string RegisteredDate { get; set; }
         public string ShineType { get; set; }
         public string Usertype { get; set; }
