@@ -27,13 +27,15 @@ namespace GKBS_SUPPORT_API.Models
         public string BeatID { get; set; }
         public string SalesmanID { get; set; }
         public string BranchID { get; set; }
+        public string CByName { get; set; }
         public string CBy { get; set; }
+        public string MBy { get; set; }
         public string CDate { get; set; }
         public string UserImageData { get; set; }
         public string ResponseMessage { get; set; }
         public string EmployeeNo { get; set; }
         public string type { get; set; }
-        public string MBy { get; set; }
+        public string MByName { get; set; }
         public string MDate { get; set; }
 
         public string UID { get; set; }
@@ -88,8 +90,10 @@ namespace GKBS_SUPPORT_API.Models
         public string ParentCompCode { get; set; }
         public string Version { get; set; }
         public string CBy { get; set; }
+        public string CByName { get; set; }
         public string CDate { get; set; }
         public string MBy { get; set; }
+        public string MByName { get; set; }
         public string MDate { get; set; }
         public string UserTypeValue { get; set; }
         public string ActionUser { get; set; }

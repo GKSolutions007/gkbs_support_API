@@ -40,9 +40,9 @@ namespace GKBS_SUPPORT_API.Controllers
                             EMailID = row["Email"].ToString(),
                             EmployeeNo = row["EmployeeNo"].ToString(),
                             Active = row["Active"].ToString(),
-                            CBy = row["CBy"].ToString(),
+                            CByName = row["CByName"].ToString(),
                             CDate = row["CDate"].ToString(),
-                            MBy = row["MBy"].ToString(),
+                            MByName = row["MByName"].ToString(),
                             MDate = row["MDate"].ToString(),
                         });
                     }

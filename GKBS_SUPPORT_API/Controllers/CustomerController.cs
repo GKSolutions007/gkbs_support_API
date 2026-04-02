@@ -49,14 +49,12 @@ namespace GKBS_SUPPORT_API.Controllers
                             ParentCompCode = row["ParentCompCode"].ToString(),
                             Version = row["Version"].ToString(),
                             Active = row["Active"].ToString(),
-                            CBy = row["CBy"].ToString(),
+                            CByName = row["CByName"].ToString(),
                             CDate = row["CDate"].ToString(),
-                            MBy = row["MBy"].ToString(),
+                            MByName = row["MByName"].ToString(),
                             MDate = row["MDate"].ToString(),
                             ShineTypeValue = row["ShineTypeValue"].ToString(),
                             UsertypeValue = row["UserTypeValue"].ToString(),
-                            ActionUser = row["ActionUser"].ToString(),
-                            ActionTime = row["ActionTime"].ToString(),
 
                             
 
