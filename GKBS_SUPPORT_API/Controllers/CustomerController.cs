@@ -18,6 +18,13 @@ namespace GKBS_SUPPORT_API.Controllers
         string connectionString = clsEncryptDecrypt.Decrypt(ConfigurationManager.ConnectionStrings["dbconncection"].ConnectionString);
 
         [HttpGet]
+        [Route("api/customer/synccompany")]
+        public IHttpActionResult GetCustomerList(string CompanyCode)
+        {
+            DataTable DDT = bl.BL_ExecuteParamSP("uspSyncwithGKS", CompanyCode);            
+            return Ok(new { Status = DDT.Rows.Count == 0 ? "Success" :  "Error", Message = DDT.Rows.Count > 0 ? DDT.Rows[0][0].ToString() : "Synchronized Successfully" });
+        }
+            [HttpGet]
         [Route("api/customer/GetCustomerList")]
         public IHttpActionResult GetCustomerList(int userId = 0 )
         {
@@ -39,8 +46,11 @@ namespace GKBS_SUPPORT_API.Controllers
                             Latitude = row["Latitude"].ToString(),                            
                             Longtitude = row["Longtitude"].ToString(),
                             GSTIN = row["GSTIN"].ToString(),
+                            MobileNo = row["MobileNo"].ToString(),
+                            EmailID = row["EmailID"].ToString(),
                             RegisteredDate = row["RegistedDate"].ToString(),
                             ExpDate = row["ExpDate"].ToString(),
+                            WebExpDate = row["WebExpDate"].ToString(),
                             AmcDate = row["AmcDate"].ToString(),
                             ShineType = row["ShineType"].ToString(),
                             Usertype = row["Usertype"].ToString(),
@@ -111,15 +121,18 @@ namespace GKBS_SUPPORT_API.Controllers
                         listmaster.Address,
                         listmaster.Latitude,
                         listmaster.Longtitude,
+                        listmaster.MobileNo,
+                        listmaster.EmailID,
                         listmaster.GSTIN,
                         listmaster.RegisteredDate,
                         listmaster.ExpDate,
+                        listmaster.WebExpDate,
                         listmaster.AmcDate,
                         listmaster.ShineType,
                         listmaster.Usertype,
                         listmaster.NoofClient,
                         listmaster.MobileApp,
-                        listmaster.ParentCompCode,
+                        !string.IsNullOrEmpty(listmaster.ParentCompCode) ? listmaster.ParentCompCode : "0",
                         listmaster.Version,
                         listmaster.Active,
                         listmaster.UID,

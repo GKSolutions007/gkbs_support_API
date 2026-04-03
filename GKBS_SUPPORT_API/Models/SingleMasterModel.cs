@@ -74,8 +74,11 @@ namespace GKBS_SUPPORT_API.Models
         public string Customercode { get; set; }
         public string Customername { get; set; }
         public string ExpDate { get; set; }
+        public string WebExpDate { get; set; }
         public string AmcDate { get; set; }
         public string GSTIN { get; set; }
+        public string MobileNo { get; set; }
+        public string EmailID { get; set; }
         public string ShineTypeValue { get; set; }
         public string UsertypeValue { get; set; }
         public string NoofClient { get; set; }
