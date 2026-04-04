@@ -106,6 +106,12 @@ namespace GKBS_SUPPORT_API.Models
 
         public List<CustomerContact> ContactInfo { get; set; }
 
-
+        // ✅ Add this small helper class anywhere in the same file
+        public class ContactInfoItem
+        {
+            public string Name { get; set; }
+            public string MobileNo { get; set; }
+            public object Owner_Staff { get; set; }
+        }
     }
 }
