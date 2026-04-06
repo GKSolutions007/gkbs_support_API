@@ -60,7 +60,7 @@ namespace GKBS_SUPPORT_API.Controllers
                             Usertype = row["Usertype"].ToString(),
                             NoofClient = row["NoofClient"].ToString(),
                             MobileApp = row["MobileApp"].ToString(),
-                            ParentCompCode = row["ParentCompCode"].ToString(),
+                            ParentCompCode = row["ParentCompName"].ToString(),
                             Version = row["Version"].ToString(),
                             Active = row["Active"].ToString(),
                             CByName = row["CByName"].ToString(),
@@ -112,7 +112,7 @@ namespace GKBS_SUPPORT_API.Controllers
                     {
                         foreach (var contact in listmaster.ContactInfo)
                         {
-                            contactDT.Rows.Add(contact.Name, contact.MobileNo, contact.Owner_Staff);
+                            contactDT.Rows.Add(0, contact.Name, contact.MobileNo, contact.Owner_Staff);
                         }
                     }
 
@@ -387,5 +387,118 @@ namespace GKBS_SUPPORT_API.Controllers
             }
             return Ok(list);
         }
+
+        [HttpPost]
+        [Route("api/Customer/GetContacts")]
+        public IHttpActionResult GetContacts([FromBody] dynamic body)
+        {
+            try
+            {
+                string customerID = body.CustomerID.ToString();
+                DataTable DDT = bl.BL_ExecuteParamSP(
+                    "uspManageCustomerContacts",
+                    "get", 0, customerID
+                );
+
+                var contacts = new List<object>();
+                foreach (DataRow row in DDT.Rows)
+                {
+                    contacts.Add(new
+                    {
+                        ContactID = row["ContactID"],
+                        Name = row["Name"],
+                        MobileNo = row["MobileNo"],
+                        Owner_Staff = row["Owner_Staff"]
+                    });
+                }
+
+                return Ok(new { success = true, contacts = contacts });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        [Route("api/Customer/DeleteContact")]
+        public IHttpActionResult DeleteContact([FromBody] dynamic body)
+        {
+            try
+            {
+                string id = body.ID.ToString();
+                bl.BL_ExecuteParamSP(
+                    "uspManageCustomerContacts",
+                    "delete", id, 0
+                );
+                return Ok(new { success = true, message = "Contact deleted." });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("api/Customer/GetCustomerByID")]
+        public IHttpActionResult GetCustomerByID(int ID)
+        {
+            try
+            {
+                DataSet DS = bl.BL_ExecuteParamSPDataset("uspGetCustomerByID", ID);
+
+                if (DS == null || DS.Tables.Count == 0 || DS.Tables[0].Rows.Count == 0)
+                    return Ok(new { success = false, message = "Customer not found" });
+
+                DataRow row = DS.Tables[0].Rows[0];
+
+                var customer = new
+                {
+                    ID = row["ID"].ToString(),
+                    Customercode = row["Customercode"].ToString(),
+                    Customername = row["Customername"].ToString(),
+                    Address = row["Address"].ToString(),
+                    Latitude = row["Latitude"].ToString(),
+                    Longtitude = row["Longtitude"].ToString(),
+                    GSTIN = row["GSTIN"].ToString(),
+                    MobileNo = row["MobileNo"].ToString(),
+                    EmailID = row["EmailID"].ToString(),
+                    RegisteredDate = !string.IsNullOrEmpty(row["RegistedDate"].ToString()) ? Convert.ToDateTime(row["RegistedDate"]).ToString("yyyy-MM-dd") : null,
+                    ExpDate = !string.IsNullOrEmpty(row["ExpDate"].ToString()) ? Convert.ToDateTime(row["ExpDate"]).ToString("yyyy-MM-dd") : null,
+                    WebExpDate = !string.IsNullOrEmpty(row["WebExpDate"].ToString()) ? Convert.ToDateTime(row["WebExpDate"]).ToString("yyyy-MM-dd") : null,
+                    AmcDate = !string.IsNullOrEmpty(row["AmcDate"].ToString()) ? Convert.ToDateTime(row["AmcDate"]).ToString("yyyy-MM-dd") : null,
+                    ShineType = row["ShineType"].ToString(),
+                    Usertype = row["Usertype"].ToString(),
+                    NoofClient = row["NoofClient"].ToString(),
+                    MobileApp = row["MobileApp"].ToString(),
+                    ParentCompCode = row["ParentCompCode"].ToString(),
+                    Version = row["Version"].ToString(),
+                    Active = row["Active"].ToString()
+                };
+
+                var contacts = new List<object>();
+                if (DS.Tables.Count > 1)
+                {
+                    foreach (DataRow cr in DS.Tables[1].Rows)
+                    {
+                        contacts.Add(new
+                        {
+                            ContactID = cr["ID"].ToString(),
+                            Name = cr["Name"].ToString(),
+                            MobileNo = cr["MobileNo"].ToString(),
+                            Owner_Staff = cr["Owner_Staff"].ToString()
+                        });
+                    }
+                }
+
+                return Ok(new { success = true, customer = customer, contacts = contacts });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
