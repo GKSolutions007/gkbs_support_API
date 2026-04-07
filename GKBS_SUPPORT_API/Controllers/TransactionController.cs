@@ -5,7 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
@@ -365,6 +369,97 @@ namespace GKBS_SUPPORT_API.Controllers
                 return Ok(new { success = false, message = "Server Error: " + ex.Message });
             }
         }
+
+
+        // ── SAVE ATTACHMENT ──
+        [HttpPost]
+        [Route("api/Transaction/SaveAttachment")]
+        public async Task<IHttpActionResult> SaveAttachment()
+        {
+            List<SaveMessage> list = new List<SaveMessage>();
+            try
+            {
+                if (!Request.Content.IsMimeMultipartContent())
+                    return BadRequest("Unsupported media type.");
+
+                var provider = new MultipartFormDataStreamProvider(Path.GetTempPath());
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                string caseNo = provider.FormData["CaseNo"] ?? "";
+                string uid = provider.FormData["UID"] ?? "0";
+                string dailyActivityID = provider.FormData["DailyActivityID"] ?? "0"; // ✅ NEW
+
+                foreach (MultipartFileData file in provider.FileData)
+                {
+                    string originalName = file.Headers.ContentDisposition.FileName.Trim('"');
+                    string fileExt = Path.GetExtension(originalName).Replace(".", "").ToLower();
+                    byte[] fileBytes = File.ReadAllBytes(file.LocalFileName);
+                    int fileSize = fileBytes.Length;
+
+                    if (fileSize > 5 * 1024 * 1024)
+                    {
+                        File.Delete(file.LocalFileName);
+                        return Ok(new List<SaveMessage> {
+                    new SaveMessage { Status = "Error", Message = $"{originalName} exceeds 5MB limit." }
+                });
+                    }
+
+                    bl.BL_ExecuteParamSP(
+                        "uspManageDailyActivityAttachments",
+                        "save", 0, int.Parse(dailyActivityID), caseNo,
+                        originalName, fileExt, fileSize, fileBytes, uid
+                    );
+
+                    File.Delete(file.LocalFileName);
+                }
+
+                list.Add(new SaveMessage { Status = "Success", Message = "File(s) uploaded successfully." });
+            }
+            catch (Exception ex)
+            {
+                list.Add(new SaveMessage { Status = "Error", Message = ex.Message });
+            }
+            return Ok(list);
+        }
+
+        // ── GET ATTACHMENTS ──
+        [HttpPost]
+        [Route("api/Transaction/GetAttachments")]
+        public IHttpActionResult GetAttachments([FromBody] dynamic body)
+        {
+            try
+            {
+                // ✅ Now receives DailyActivityID instead of CaseNo
+                int dailyActivityID = int.Parse(body.DailyActivityID.ToString());
+
+                DataTable DDT = bl.BL_ExecuteParamSP(
+                    "uspManageDailyActivityAttachments",
+                    "get", 0, dailyActivityID, null,
+                    null, null, 0, null, 0
+                );
+
+                var files = new List<object>();
+                foreach (DataRow row in DDT.Rows)
+                {
+                    files.Add(new
+                    {
+                        ID = row["ID"],
+                        FileName = row["FileName"],
+                        FileType = row["FileType"],
+                        FileSize = row["FileSize"],
+                        UploadedOn = row["UploadedOn"]
+                    });
+                }
+
+                return Ok(new { success = true, files = files });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = ex.Message });
+            }
+        }
+
+        // ── DOWNLOAD & DELETE stay exactly the same, no changes needed ──
 
     }
 }
