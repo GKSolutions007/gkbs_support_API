@@ -1,5 +1,6 @@
 ﻿using GKBS_SUPPORT_API.BuisnessLayer;
 using GKBS_SUPPORT_API.DALHelper;
+using GKBS_SUPPORT_API.Helpers;
 using GKBS_SUPPORT_API.Models;
 using System;
 using System.Collections.Generic;
@@ -167,8 +168,9 @@ namespace GKBS_SUPPORT_API.Controllers
                 {
                     string originalName = file.Headers.ContentDisposition.FileName.Trim('"');
                     string fileExt = Path.GetExtension(originalName).Replace(".", "").ToLower();
-                    byte[] fileBytes = File.ReadAllBytes(file.LocalFileName);
-                    int fileSize = fileBytes.Length;
+                    byte[] rawBytes = File.ReadAllBytes(file.LocalFileName);
+                    byte[] finalBytes = FileHelper.GetProcessedFileBytes(rawBytes, fileExt);
+                    int fileSize = finalBytes.Length;
 
                     if (fileSize > 5 * 1024 * 1024)
                     {
@@ -181,7 +183,7 @@ namespace GKBS_SUPPORT_API.Controllers
                     bl.BL_ExecuteParamSP(
                         "uspManageUserAttachments",
                         "save", 0, userID,
-                        originalName, fileExt, fileSize, fileBytes, uid
+                        originalName, fileExt, fileSize, finalBytes, uid
                     );
 
                     File.Delete(file.LocalFileName);

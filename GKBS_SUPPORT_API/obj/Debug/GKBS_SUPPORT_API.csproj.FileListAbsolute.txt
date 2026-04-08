@@ -200,3 +200,7 @@ D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\obj\Debug\GKBS_SUPPOR
 D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\obj\Debug\GKBS_SUP.2491CF17.Up2Date
 D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\obj\Debug\GKBS_SUPPORT_API.dll
 D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\obj\Debug\GKBS_SUPPORT_API.pdb
+D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\bin\SixLabors.ImageSharp.dll
+D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\bin\System.Text.Encoding.CodePages.dll
+D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\bin\SixLabors.ImageSharp.xml
+D:\.Net GKBS Support\API\gkbs_support_API\GKBS_SUPPORT_API\bin\System.Text.Encoding.CodePages.xml

@@ -1,5 +1,6 @@
 ﻿using GKBS_SUPPORT_API.BuisnessLayer;
 using GKBS_SUPPORT_API.DALHelper;
+using GKBS_SUPPORT_API.Helpers;
 using GKBS_SUPPORT_API.Models;
 using System;
 using System.Collections.Generic;
@@ -393,8 +394,9 @@ namespace GKBS_SUPPORT_API.Controllers
                 {
                     string originalName = file.Headers.ContentDisposition.FileName.Trim('"');
                     string fileExt = Path.GetExtension(originalName).Replace(".", "").ToLower();
-                    byte[] fileBytes = File.ReadAllBytes(file.LocalFileName);
-                    int fileSize = fileBytes.Length;
+                    byte[] rawBytes = File.ReadAllBytes(file.LocalFileName);
+                    byte[] finalBytes = FileHelper.GetProcessedFileBytes(rawBytes, fileExt);
+                    int fileSize = finalBytes.Length;
 
                     if (fileSize > 5 * 1024 * 1024)
                     {
@@ -407,7 +409,7 @@ namespace GKBS_SUPPORT_API.Controllers
                     bl.BL_ExecuteParamSP(
                         "uspManageDailyActivityAttachments",
                         "save", 0, int.Parse(dailyActivityID), caseNo,
-                        originalName, fileExt, fileSize, fileBytes, uid
+                        originalName, fileExt, fileSize, finalBytes, uid
                     );
 
                     File.Delete(file.LocalFileName);
@@ -459,7 +461,76 @@ namespace GKBS_SUPPORT_API.Controllers
             }
         }
 
-        // ── DOWNLOAD & DELETE stay exactly the same, no changes needed ──
+        [HttpPost]
+        [Route("api/Transaction/DownloadAttachment")]
+        public IHttpActionResult DownloadAttachment([FromBody] dynamic body)
+        {
+            try
+            {
+                int id = int.Parse(body.ID.ToString());
+                // ✅ Use the Daily Activity SP, not the User one!
+                DataTable DDT = bl.BL_ExecuteParamSP(
+                    "uspManageDailyActivityAttachments",
+                    "download", id, 0, null, null, null, 0, null, 0
+                );
+
+                if (DDT == null || DDT.Rows.Count == 0) return NotFound();
+
+                byte[] fileData = (byte[])DDT.Rows[0]["FileData"];
+                string fileName = DDT.Rows[0]["FileName"].ToString();
+                string fileExt = DDT.Rows[0]["FileType"].ToString().ToLower();
+
+                var mimeTypes = new Dictionary<string, string> {
+            { "pdf",  "application/pdf" },
+            { "xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+            { "xls",  "application/vnd.ms-excel" },
+            { "doc",  "application/msword" },
+            { "docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+            { "png",  "image/png" },
+            { "jpg",  "image/jpeg" },
+            { "jpeg", "image/jpeg" },
+            { "txt",  "text/plain" }
+        };
+
+                string mime = mimeTypes.ContainsKey(fileExt) ? mimeTypes[fileExt] : "application/octet-stream";
+
+                var response = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new ByteArrayContent(fileData)
+                };
+                response.Content.Headers.ContentDisposition =
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment") { FileName = fileName };
+                response.Content.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(mime);
+
+                return ResponseMessage(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // ── DELETE DAILY ACTIVITY ATTACHMENT ──
+        [HttpPost]
+        [Route("api/Transaction/DeleteAttachment")]
+        public IHttpActionResult DeleteAttachment([FromBody] dynamic body)
+        {
+            try
+            {
+                int id = int.Parse(body.ID.ToString());
+                // ✅ Use the Daily Activity SP!
+                bl.BL_ExecuteParamSP(
+                    "uspManageDailyActivityAttachments",
+                    "delete", id, 0, null, null, null, 0, null, 0
+                );
+                return Ok(new { success = true, message = "File deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { success = false, message = ex.Message });
+            }
+        }
 
     }
 }
