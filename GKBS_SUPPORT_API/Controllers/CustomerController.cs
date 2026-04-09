@@ -1,6 +1,10 @@
 ﻿using GKBS_SUPPORT_API.BuisnessLayer;
+using GKBS_SUPPORT_API.Helpers;
 using GKBS_SUPPORT_API.DALHelper;
 using GKBS_SUPPORT_API.Models;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -188,10 +192,11 @@ namespace GKBS_SUPPORT_API.Controllers
                 {
                     string originalName = file.Headers.ContentDisposition.FileName.Trim('"');
                     string fileExt = Path.GetExtension(originalName).Replace(".", "").ToLower();
-                    byte[] fileBytes = File.ReadAllBytes(file.LocalFileName);
-                    int fileSize = fileBytes.Length;
+                    byte[] rawBytes = File.ReadAllBytes(file.LocalFileName);
+                    byte[] finalBytes = FileHelper.GetProcessedFileBytes(rawBytes, fileExt);
+                    int fileSize = finalBytes.Length;
 
-                    // ✅ 5MB limit check
+
                     if (fileSize > 5 * 1024 * 1024)
                     {
                         File.Delete(file.LocalFileName);
@@ -208,7 +213,7 @@ namespace GKBS_SUPPORT_API.Controllers
                         originalName,
                         fileExt,
                         fileSize,
-                        fileBytes,
+                        finalBytes,
                         uid
                     );
 
